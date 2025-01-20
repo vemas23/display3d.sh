@@ -1,26 +1,37 @@
-name: Rust
+name: Build and Publish Rust Artifact
 
-'on':
+on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
-
-env:
-  CARGO_TERM_COLOR: always
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Build
-        run: cargo build --verbose
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v4.1.8
+      # Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Rust
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          name: artifact-name
-          path: ./artifacts
+          toolchain: stable
+
+      # Install dependencies and build the project
+      - name: Build project
+        run: |
+          cargo build --release
+
+      # Publish the built binary as an artifact
+      - name: Upload Rust binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rust-binary
+          path: target/release/your-binary-name
